@@ -3,7 +3,6 @@
 package opengraph
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -70,12 +69,6 @@ func New(rawurl string) *OpenGraph {
 
 // Fetch creates and parses OpenGraph with specified URL.
 func Fetch(rawurl string, customHTTPClient ...*http.Client) (*OpenGraph, error) {
-	return FetchWithContext(context.Background(), rawurl, customHTTPClient...)
-}
-
-// FetchWithContext creates and parses OpenGraph with specified URL.
-// Timeout can be handled with provided context.
-func FetchWithContext(ctx context.Context, rawurl string, customHTTPClient ...*http.Client) (*OpenGraph, error) {
 	og := New(rawurl)
 	if og.Error != nil {
 		return og, og.Error
@@ -90,8 +83,6 @@ func FetchWithContext(ctx context.Context, rawurl string, customHTTPClient ...*h
 	if err != nil {
 		return nil, err
 	}
-
-	req = req.WithContext(ctx)
 
 	res, err := og.HTTPClient.Do(req)
 	if err != nil {

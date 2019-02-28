@@ -2,7 +2,6 @@ package opengraph
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -84,13 +83,12 @@ func TestFetchWithContext(t *testing.T) {
 	s := dummySlowServer(time.Millisecond * 300)
 	defer s.Close()
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Millisecond*500)
-	_, err := FetchWithContext(ctx, s.URL)
+	_, err := Fetch(s.URL, &http.Client{Timeout: 500 * time.Millisecond})
 	Expect(t, err).ToBe(nil)
 
-	ctx, _ = context.WithTimeout(context.Background(), time.Millisecond*100)
-	_, err = FetchWithContext(ctx, s.URL)
-	Expect(t, err).Match(context.DeadlineExceeded.Error())
+	_, err = Fetch(s.URL, &http.Client{Timeout: 100 * time.Millisecond})
+	Expect(t, err).Not().ToBe(nil)
+	Expect(t, err).Match("Timeout exceeded")
 }
 
 func dummyServer(id int) *httptest.Server {
